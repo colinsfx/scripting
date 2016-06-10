@@ -1,0 +1,10 @@
+#query for MS LogParser2.2 against IIS logs (C:\inetpub\logging)
+
+SELECT DISTINCT cs-username AS UserID, 
+	cs(User-Agent) AS Application, 
+	c-ip AS CLIENT,
+	Count(*)
+FROM '[LOGFILEPATH]'
+WHERE Application LIKE '%MacOutlook%' OR Application LIKE '%+Mail/%'
+GROUP BY UserID, Application, Client
+ORDER BY COUNT(*) DESC
