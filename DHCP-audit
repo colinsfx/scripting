@@ -1,4 +1,5 @@
 #Outputs DHCP leases to .csv
+#cmdlets require Windows Server 2012
 
 $scope=(Get-DhcpServerv4Scope|Format-Wide|Out-String).trim()
 Get-DhcpServerv4Lease -scope $scope|Export-Csv -path c:\leases.csv
