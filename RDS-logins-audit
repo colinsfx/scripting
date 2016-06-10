@@ -1,0 +1,15 @@
+#Audits the IP and username of successful RDS logins
+#Credit "Rhys W Edwards": https://social.technet.microsoft.com/Forums/windowsserver/en-US/15b7d339-8563-4ae0-bac9-3bd3cf6a30b8/parsing-getwinevent-microsoftwindowsterminalserviceslocalsessionmanageroperational?forum=winserverpowershell
+
+$Events = Get-WinEvent -logname "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational" | where {($_.Id -eq "21" -OR $_.Id -eq "24" -OR $_.Id -eq "25"  -OR $_.Id -eq "23")}
+$Results = Foreach ($Event in $Events) {
+  $Result = "" | Select IP,User,TimeCreated
+  $Result.TimeCreated = $Event.TimeCreated
+  Foreach ($MsgElement in ($Event.Message -split "`n")) {
+    $Element = $MsgElement -split ":"
+    If ($Element[0] -like "User") {$Result.User = $Element[1].Trim(" ")}
+    If ($Element[0] -like "Source Network Address") {$Result.IP = $Element[1].Trim(" ")}
+  }
+  $Result
+} 
+$Results | Select IP,User,TimeCreated | Export-Csv C:\RDS.csv -NoType
